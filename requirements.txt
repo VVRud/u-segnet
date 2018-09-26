@@ -1,0 +1,7 @@
+numpy
+Pillow
+tensorflow>=1.5
+tabulate
+tqdm
+imageio
+easydict

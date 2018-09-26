@@ -1,0 +1,23 @@
+{
+    "exp_name": "data_loading",
+
+    "num_epochs": 2,
+
+    "image_size": 128,
+    "train_percentage": 0.8,
+
+    "batch_size": 64,
+    "num_parallel_calls": 4,
+    "use_random_flip": "False",
+    "use_random_crop": "False",
+    "crop_factor": 0.8,
+
+    "use_batch_norm": "True",
+    "use_activation": "True",
+
+    "optimizer": "Adam",
+    "learning_rate": 1e-3,
+    "momentum": 0.9,
+
+    "max_to_keep": 0
+}
