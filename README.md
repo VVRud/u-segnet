@@ -32,3 +32,24 @@ Next image illustrates architecture proposed in paper.
 ## Differences from paper
 
 In paper from IIIT-Delhi you can see that they use sliding window to predict every pixel's class, but I've implemented it for one single image.
+
+---
+
+# Usage
+
+1. Put train and test data into data/u_segnet folder.<br/>
+Path to train images and masks should be as follows:<br/>
+``data/u_segnet/(train, test)/(images, masks)``
+2. Via command line run commands below. It will take some time to create folders for train/dev/test splits with resized images in them.<br/>
+
+```bash
+cd home/$user/**path/to/project**/data/u_segnet/
+python prepare_u_segnet.py --config ../../configs/u_segnet.json
+```
+
+3. Next commands will change your working dirrectory and start training cycle.
+
+```bash
+cd home/$user/**path/to/project**/mains/
+python u_segnet_runner.py --config ../configs/u_segnet.json
+```
