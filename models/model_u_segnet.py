@@ -9,6 +9,7 @@ class USegNetModel(BaseModel):
     Implementation of the model proposed by IIIT-Delhi research team.
     https://arxiv.org/abs/1806.04429
     """
+
     def __init__(self, data_loader, config):
         super(USegNetModel, self).__init__(config)
 
@@ -37,10 +38,14 @@ class USegNetModel(BaseModel):
         """
         Helper Variables
         """
-        self.global_step_tensor = tf.Variable(0, trainable=False, name='global_step')
-        self.global_step_inc = self.global_step_tensor.assign(self.global_step_tensor + 1)
-        self.global_epoch_tensor = tf.Variable(0, trainable=False, name='global_epoch')
-        self.global_epoch_inc = self.global_epoch_tensor.assign(self.global_epoch_tensor + 1)
+        self.global_step_tensor = tf.Variable(
+            0, trainable=False, name='global_step')
+        self.global_step_inc = self.global_step_tensor.assign(
+            self.global_step_tensor + 1)
+        self.global_epoch_tensor = tf.Variable(
+            0, trainable=False, name='global_epoch')
+        self.global_epoch_inc = self.global_epoch_tensor.assign(
+            self.global_epoch_tensor + 1)
 
         """
         Inputs to the network
@@ -48,7 +53,8 @@ class USegNetModel(BaseModel):
         with tf.variable_scope('inputs'):
             self.x, self.y = self.data_loader.get_inputs()
 
-            assert self.x.get_shape().as_list() == [None, self.config.image_size, self.config.image_size, 1]
+            assert self.x.get_shape().as_list() == [
+                None, self.config.image_size, self.config.image_size, 1]
 
             self.is_training = tf.placeholder(tf.bool, name='Training_flag')
 
@@ -65,49 +71,67 @@ class USegNetModel(BaseModel):
             """
             Encoder
             """
-            out = self.conv_bn_relu(out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv1_1')
-            conv1 = self.conv_bn_relu(out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv1_2')
+            out = self.conv_bn_relu(
+                out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv1_1')
+            conv1 = self.conv_bn_relu(
+                out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv1_2')
             pool1, pool1_ind = self.pool(conv1, name='pool1')
 
-            out = self.conv_bn_relu(pool1, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv2_1')
-            out = self.conv_bn_relu(out, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv2_2')
+            out = self.conv_bn_relu(
+                pool1, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv2_1')
+            out = self.conv_bn_relu(
+                out, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv2_2')
             pool2, pool2_ind = self.pool(out, name='pool2')
 
-            out = self.conv_bn_relu(pool2, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv3_1')
-            out = self.conv_bn_relu(out, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv3_2')
+            out = self.conv_bn_relu(
+                pool2, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv3_1')
+            out = self.conv_bn_relu(
+                out, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv3_2')
             pool3, pool3_ind = self.pool(out, name='pool3')
 
-            out = self.conv_bn_relu(pool3, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv4_1')
-            out = self.conv_bn_relu(out, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv4_2')
+            out = self.conv_bn_relu(
+                pool3, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv4_1')
+            out = self.conv_bn_relu(
+                out, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv4_2')
             pool4, pool4_ind = self.pool(out, name='pool4')
 
             """
             Bottleneck
             """
-            out = self.conv_bn_relu(pool4, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv5_1')
-            out = self.conv_bn_relu(out, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv5_2')
+            out = self.conv_bn_relu(
+                pool4, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv5_1')
+            out = self.conv_bn_relu(
+                out, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='conv5_2')
 
             """
             Decoder
             """
             out = self.unpool(out, pool4_ind, name='unpool4')
-            out = self.conv_bn_relu(out, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv4_2')
-            out = self.conv_bn_relu(out, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv4_1')
+            out = self.conv_bn_relu(
+                out, 512, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv4_2')
+            out = self.conv_bn_relu(
+                out, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv4_1')
 
             out = self.unpool(out, pool3_ind, name='unpool3')
-            out = self.conv_bn_relu(out, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv3_2')
-            out = self.conv_bn_relu(out, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv3_1')
+            out = self.conv_bn_relu(
+                out, 256, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv3_2')
+            out = self.conv_bn_relu(
+                out, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv3_1')
 
             out = self.unpool(out, pool2_ind, name='unpool2')
-            out = self.conv_bn_relu(out, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv2_2')
-            out = self.conv_bn_relu(out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv2_1')
+            out = self.conv_bn_relu(
+                out, 128, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv2_2')
+            out = self.conv_bn_relu(
+                out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv2_1')
 
             out = self.unpool(out, pool1_ind, name='unpool1')
             # Skipped connection
             out = tf.concat([out, conv1], axis=-1, name='skipped')
             # ------------------
-            out = self.conv_bn_relu(out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, kernel_size=(1, 1) name='upconv1_2')
-            out = self.conv_bn_relu(out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv1_1')
+            out = self.conv_bn_relu(out, 64, self.is_training, self.config.use_batch_norm,
+                                    self.config.use_activation, kernel_size=(1, 1), name='upconv1_2')
+            out = self.conv_bn_relu(
+                out, 64, self.is_training, self.config.use_batch_norm, self.config.use_activation, name='upconv1_1')
 
             self.out = self.conv_predictor(out, use_activation=False)
 
@@ -123,25 +147,29 @@ class USegNetModel(BaseModel):
         with tf.variable_scope('metrics'):
             self.loss = mt.dice_loss(y_true=self.y, y_pred=self.predictions)
             self.dice = mt.dice_coef(y_true=self.y, y_pred=self.predictions)
-            self.iou  = mt.mean_iou(y_true=self.y, y_pred=self.predictions)
+            self.iou = mt.mean_iou(y_true=self.y, y_pred=self.predictions)
 
         with tf.variable_scope('train_step'):
             if self.config.optimizer == 'Adam':
-                self.optimizer = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate)
+                self.optimizer = tf.train.AdamOptimizer(
+                    learning_rate=self.config.learning_rate)
             elif self.config.optimizer == 'Momentum':
                 self.optimizer = tf.train.MomentumOptimizer(
                     learning_rate=self.config.learning_rate,
                     momentum=self.config.momentum
                 )
             else:
-                self.optimizer = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate)
+                self.optimizer = tf.train.AdamOptimizer(
+                    learning_rate=self.config.learning_rate)
 
             if self.config.use_batch_norm:
                 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
                 with tf.control_dependencies(update_ops):
-                    self.train_step = self.optimizer.minimize(self.loss, global_step=self.global_step_tensor)
+                    self.train_step = self.optimizer.minimize(
+                        self.loss, global_step=self.global_step_tensor)
             else:
-                self.train_step = self.optimizer.minimize(self.loss, global_step=self.global_step_tensor)
+                self.train_step = self.optimizer.minimize(
+                    self.loss, global_step=self.global_step_tensor)
 
         tf.add_to_collection('train', self.train_step)
         tf.add_to_collection('train', self.loss)
@@ -153,12 +181,13 @@ class USegNetModel(BaseModel):
         Initialize the tensorflow saver that will be used in saving the checkpoints.
         :return:
         """
-        self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep, save_relative_paths=True)
+        self.saver = tf.train.Saver(
+            max_to_keep=self.config.max_to_keep, save_relative_paths=True)
 
     def conv_bn_relu(self, input_t, n_filters, is_training, use_batch_norm=True, use_activation=True, kernel_size=(3, 3), name=None):
         """
         Implementation of block Convolution -> Batch Normalization -> RELU.
-        
+
         :param: input_t: Input Tensor with imensions [bs, h, w, n < n_filters].
         :param: n_filters: Number of filters to have in output Tensor.
         :param: is_training: tf.placeholder boolean variable.
@@ -219,29 +248,40 @@ class USegNetModel(BaseModel):
 
     def unpool(self, pool, ind, ksize=[1, 2, 2, 1], name=None):
         """
+        Unpooling operation.
 
+        :param: pool: A Tensor of shape [b, d0, d1, ..., dn, ch].
+        :param: ind: Indices to make pooling..
+        :param: ksize: List with kernel sizes for every axis.
+        :param: name: Name of the scope.
+
+        :return: ret: Resulting Tensor of the unpooling operation with size pool * ksize.
         """
-        with tf.variable_scope(name) as scope:
+        with tf.variable_scope(name):
             input_shape = tf.shape(pool)
-            output_shape = [input_shape[0], input_shape[1] * ksize[1], input_shape[2] * ksize[2], input_shape[3]]
+            output_shape = [input_shape[0], input_shape[1] *
+                            ksize[1], input_shape[2] * ksize[2], input_shape[3]]
 
             flat_input_size = tf.cumprod(input_shape)[-1]
-            flat_output_shape = tf.stack([output_shape[0], output_shape[1] * output_shape[2] * output_shape[3]])
+            flat_output_shape = tf.stack(
+                [output_shape[0], output_shape[1] * output_shape[2] * output_shape[3]])
 
             pool_ = tf.reshape(pool, tf.stack([flat_input_size]))
-            batch_range = tf.reshape(
-                tf.range(tf.cast(output_shape[0], tf.int64), dtype=ind.dtype),
-                shape=tf.stack([input_shape[0], 1, 1, 1]))
+            batch_range = tf.reshape(tf.range(tf.cast(output_shape[0], tf.int64), dtype=ind.dtype),
+                                     shape=tf.stack([input_shape[0], 1, 1, 1]))
             b = tf.ones_like(ind) * batch_range
             b = tf.reshape(b, tf.stack([flat_input_size, 1]))
             ind_ = tf.reshape(ind, tf.stack([flat_input_size, 1]))
+            ind_ = ind_ - b * tf.cast(flat_output_shape[1], tf.int64)
             ind_ = tf.concat([b, ind_], 1)
 
-            ret = tf.scatter_nd(ind_, pool_, shape=tf.cast(flat_output_shape, tf.int64))
+            ret = tf.scatter_nd(ind_, pool_, shape=tf.cast(
+                flat_output_shape, tf.int64))
             ret = tf.reshape(ret, tf.stack(output_shape))
 
             set_input_shape = pool.get_shape()
-            set_output_shape = [set_input_shape[0], set_input_shape[1] * ksize[1], set_input_shape[2] * ksize[2], set_input_shape[3]]
+            set_output_shape = [set_input_shape[0], set_input_shape[1] *
+                                ksize[1], set_input_shape[2] * ksize[2], set_input_shape[3]]
             ret.set_shape(set_output_shape)
         return ret
 
