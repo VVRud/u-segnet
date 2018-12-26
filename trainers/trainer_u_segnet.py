@@ -22,14 +22,16 @@ class USegNetTrainer(BaseTrain):
         :param logger:
         :param data_loader:
         """
-        super(USegNetTrainer, self).__init__(sess, model, config, logger, data_loader)
+        super(USegNetTrainer, self).__init__(
+            sess, model, config, logger, data_loader)
 
         self.model.load(self.sess)
 
         self.summarizer = logger
 
         self.x, self.y, self.is_training = tf.get_collection('inputs')
-        self.train_op, self.loss_node, self.dice_node, self.iou_node = tf.get_collection('train')
+        self.train_op, self.loss_node, self.dice_node, self.iou_node = tf.get_collection(
+            'train')
         self.predictions = tf.get_collection('predictions')
 
     def train(self):
@@ -136,7 +138,8 @@ Epoch-{} Train loss:{:.4f} -- dice:{:.4f} -- iou:{:.4f}
             'eval/iou_per_epoch': iou_per_epoch.val
         }
 
-        self.summarizer.summarize(self.model.global_step_tensor.eval(self.sess), summaries_dict)
+        self.summarizer.summarize(
+            self.model.global_step_tensor.eval(self.sess), summaries_dict)
 
         print("""
 Val-{} Eval loss:{:.4f} -- dice:{:.4f} -- iou:{:.4f}

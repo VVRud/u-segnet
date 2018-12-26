@@ -39,7 +39,8 @@ def mean_iou(y_true, y_pred, name=None):
         true_flat = tf.reshape(y_true, [-1, H * W])
 
         intersection = 2 * tf.reduce_sum(pred_flat * true_flat, axis=1) + 1e-7
-        denominator = tf.reduce_sum(pred_flat, axis=1) + tf.reduce_sum(true_flat, axis=1) + 1e-7
+        denominator = tf.reduce_sum(
+            pred_flat, axis=1) + tf.reduce_sum(true_flat, axis=1) + 1e-7
 
         return tf.reduce_mean(intersection / denominator)
 
