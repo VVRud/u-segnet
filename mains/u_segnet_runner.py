@@ -1,14 +1,14 @@
-from utils.utils import get_args
-from utils.logger import DefinedSummarizer
-from utils.dirs import create_dirs
-from utils.config import process_config
-from trainers.trainer_u_segnet import USegNetTrainer
-from models.model_u_segnet import USegNetModel
-from data_generators.generator_u_segnet import USegNetLoader
-import tensorflow as tf
 import sys
-
 sys.path.extend(['..'])
+
+import tensorflow as tf
+from data_generators.generator_u_segnet import USegNetLoader
+from models.model_u_segnet import USegNetModel
+from trainers.trainer_u_segnet import USegNetTrainer
+from utils.config import process_config
+from utils.dirs import create_dirs
+from utils.logger import DefinedSummarizer
+from utils.utils import get_args
 
 
 def main():

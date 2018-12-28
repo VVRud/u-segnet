@@ -1,5 +1,6 @@
 {
     "exp_name": "data_loading",
+    "debug": false,
 
     "num_epochs": 2,
 

@@ -5,3 +5,4 @@ experiments
 data/*/test
 data/*/train
 data/*/READY_*
+*.csv
